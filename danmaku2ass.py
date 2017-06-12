@@ -227,6 +227,8 @@ def ReadCommentsTudou2(f, fontsize):
             logging.warning(_('Invalid comment: %r') % comment)
             continue
 
+def isColorDark(c):
+	return (((c >> 16) & 0xff) * 0.2126 + ((c >> 8) & 0xff) * 0.7152 + (c & 0xff) * 0.0722) < 0x80
 
 def ReadCommentsMioMio(f, fontsize):
     NiconicoColorMap = {'red': 0xff0000, 'pink': 0xff8080, 'orange': 0xffc000, 'yellow': 0xffff00, 'green': 0x00ff00, 'cyan': 0x00ffff, 'blue': 0x0000ff, 'purple': 0xc000ff, 'black': 0x000000}
@@ -309,7 +311,7 @@ def WriteCommentBilibiliPositioned(f, c, width, height, styleid):
         styles.append('\\fs%.0f' % (c[6]*ZoomFactor[0]))
         if c[5] != 0xffffff:
             styles.append('\\c&H%s&' % ConvertColor(c[5]))
-            if c[5] == 0x000000:
+            if isColorDark(c[5]):
                 styles.append('\\3c&HFFFFFF&')
         if from_alpha == to_alpha:
             styles.append('\\alpha&H%02X' % from_alpha)
@@ -357,7 +359,7 @@ def WriteCommentAcfunPositioned(f, c, width, height, styleid):
                 styles.append('\\fscy%.0f' % (scale_y*100))
         if color is not None:
             styles.append('\\c&H%s&' % ConvertColor(color))
-            if color == 0x000000:
+            if isColorDark(color):
                 styles.append('\\3c&HFFFFFF&')
         if alpha is not None:
             alpha = 255-round(alpha*255)
@@ -639,7 +641,7 @@ def WriteComment(f, c, row, width, height, bottomReserved, fontsize, duration_ma
         styles.append('\\fs%.0f' % c[6])
     if c[5] != 0xffffff:
         styles.append('\\c&H%s&' % ConvertColor(c[5]))
-        if c[5] == 0x000000:
+        if isColorDark(c[5]):
             styles.append('\\3c&HFFFFFF&')
     f.write('Dialogue: 2,%(start)s,%(end)s,%(styleid)s,,0000,0000,0000,,{%(styles)s}%(text)s\n' % {'start': ConvertTimestamp(c[0]), 'end': ConvertTimestamp(c[0]+duration), 'styles': ''.join(styles), 'text': text, 'styleid': styleid})
 
